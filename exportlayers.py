@@ -8,7 +8,7 @@ from xml.dom import minidom
 import codecs
 
 
-def export_layers(src, dest, hide, show, hide_all, print_layers):
+def export_layers(src, dest, hide, show, hide_all, print_layers, leave):
     """
     Export selected layers of SVG in the file `src` to the file `dest`.
 
@@ -32,6 +32,9 @@ def export_layers(src, dest, hide, show, hide_all, print_layers):
             elif label in show:
                 g.attributes['style'] = 'display:inline'
                 g_show.append(g)
+            elif label not in leave and leave:
+                parent = g.parentNode
+                parent.removeChild(g)
     export = svg.toxml()
     if dest:
         codecs.open(dest, "w", encoding="utf8").write(export)
@@ -54,6 +57,9 @@ def main():
     parser.add_argument(
         '--show', action='append', default=[],
         help='layer to show. this option can be specified multiple times.')
+    parser.add_argument(
+        '--leave', action='append', default=[],
+        help='layer to not delete. this option can be specified multiple times.')
     parser.add_argument('src', help='source SVG file.')
     parser.add_argument('dest', nargs='?', default=None,
         help='path to export SVG file.')
